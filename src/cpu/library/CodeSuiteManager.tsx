@@ -1,6 +1,17 @@
 import { Subscriptions, useSubscriptions } from "@/src/utils/hooks";
 import { IElfTextSection, listElfTextSections, readElfHeader } from "../ElfParser";
-
+function getBaseUrl() {
+  if (typeof window !== "undefined") {
+    // 浏览器端，直接相对路径
+    return "";
+  }
+  // Node 环境
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) {
+    return `https://${vercelUrl}`;  // 注意要加协议
+  }
+  return "http://localhost:3000";   // 本地开发时
+}
 export interface ICodeSuite {
     title: string;
     fileName: string;
@@ -46,7 +57,7 @@ export class CodeSuiteManager {
     }
 
     private async loadSuite(suite: ICodeSuite) {
-        let basePath = (process.env.BASE_URL ?? '') + '/riscv/examples/';
+        let basePath = getBaseUrl() + '/riscv/examples/';
         let resp = await fetch(basePath + suite.fileName);
 
         if (!resp.ok) {
